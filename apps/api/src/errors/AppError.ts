@@ -26,6 +26,10 @@ export class AppError extends Error {
     return new AppError(400, "BAD_REQUEST", message, details);
   }
 
+  static validation(message = "Invalid request data", details: ErrorDetail[] = []): AppError {
+    return new AppError(400, "VALIDATION_ERROR", message, details);
+  }
+
   static unauthorized(message = "Authentication required", details: ErrorDetail[] = []): AppError {
     return new AppError(401, "UNAUTHORIZED", message, details);
   }

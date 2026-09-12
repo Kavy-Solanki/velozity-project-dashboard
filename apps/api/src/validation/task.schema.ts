@@ -24,7 +24,7 @@ export const updateTaskSchema = z.object({
       message: "Invalid due date format",
     })
     .optional(),
-});
+}).strict();
 
 export const updateTaskStatusSchema = z.object({
   status: z.nativeEnum(TaskStatus, {

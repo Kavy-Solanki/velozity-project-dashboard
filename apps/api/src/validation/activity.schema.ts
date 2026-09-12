@@ -9,8 +9,8 @@ export const catchupQuerySchema = z
     lastId: z.string().min(1).optional(),
     limit: z.coerce.number().min(1).max(50).default(20),
   })
-  .refine(({ since, lastId }) => Boolean(since) === Boolean(lastId), {
-    message: "since and lastId must be provided together",
+  .refine(({ since, lastId }) => Boolean(since) || !lastId, {
+    message: "lastId requires since",
     path: ["lastId"],
   });
 

@@ -17,7 +17,7 @@ export function validateRequest(
           field: e.path.join("."),
           message: e.message,
         }));
-        return next(AppError.badRequest("Invalid request data", details));
+        return next(AppError.validation("Invalid request data", details));
       }
       next(error);
     }

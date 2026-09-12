@@ -56,7 +56,12 @@ describe("Critical Security & Resource-Level Authorization", () => {
     pm1ProjectId = pm1Project!.id;
     pm2ProjectId = pm2Project!.id;
 
-    const dev1Task = await prisma.task.findFirst({ where: { assignedDeveloperId: dev1User!.id } });
+    const dev1Task = await prisma.task.findFirst({
+      where: {
+        assignedDeveloperId: dev1User!.id,
+        project: { createdById: pm1User!.id },
+      },
+    });
     const dev2Task = await prisma.task.findFirst({ where: { assignedDeveloperId: dev2User!.id } });
 
     dev1TaskId = dev1Task!.id;

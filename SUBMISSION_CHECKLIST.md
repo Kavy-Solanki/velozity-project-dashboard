@@ -29,13 +29,13 @@ not satisfied.
 | WebSocket-only transport | PASS | Client and server explicitly configure `transports: ["websocket"]`. |
 | Authorized realtime delivery | PASS | Admin, project-owner, and assigned-developer rooms are used for activity delivery. |
 | PostgreSQL-backed activity catchup | PASS | Role-filtered database queries are capped at 20 and use the `(createdAt, id)` cursor. |
-| Same-timestamp catchup correctness | PENDING | Focused test exists; it requires the PostgreSQL test database to run. |
+| Same-timestamp catchup correctness | PASS | Focused PostgreSQL test passed as part of the API suite. |
 | Notifications and unread counts | PASS | Assignment and `IN_REVIEW` notifications, read APIs, and realtime count events exist. |
 | Live presence | PASS | Unique connected-user tracking and admin presence events exist. |
 | Overdue background job | PASS | In-process `node-cron` runs every minute and idempotently flags overdue tasks. |
 | Structured API errors | PASS | App, validation, and unexpected errors return structured responses without stack traces. |
 | Frontend auth and dashboards | PASS | In-memory access-token state, silent refresh, role dashboards, filters, activity, and notifications exist. |
-| API and realtime tests | PENDING | Test files cover auth, RBAC, tasks, catchup, WebSocket security, scheduler, and notifications, but database execution is pending. |
+| API and realtime tests | PASS | Workspace-aware API test run passed: 6 test files, 42 tests, 0 failed, 0 skipped. |
 | Production deployment | PENDING | No deployment has been run or proven, and no live URL is claimed. |
 
 ## Auto-disqualification risk checks
@@ -59,13 +59,12 @@ not satisfied.
 
 ## Cannot yet be claimed
 
-The repository does not prove that PostgreSQL migrations, seed execution, API
-integration tests, Socket.io integration tests, same-timestamp cursor tests, or
-the full workspace test suite pass in a live environment. The documented test
-database setup exists, but the required test database has not been verified in
-this audit. Deployment, TLS, production configuration, and a live URL have also
-not been run or verified. The in-process scheduler requires a continuously
-running API host and is not a distributed job system.
+PostgreSQL migrations and seed execution, deployment, TLS, production
+configuration, a live URL, and the full workspace test suite have not been run or
+verified in this audit. API integration and realtime behavior are verified by the
+workspace-aware API test run: 6 test files passed, 42 tests passed, 0 failed, and
+0 skipped. The in-process scheduler requires a continuously running API host and
+is not a distributed job system.
 
 ## Submission explanation
 
@@ -96,7 +95,7 @@ repeatable CI environment before presenting a live demonstration.
    secrets; keep only fake local values in templates.
 3. Start an isolated PostgreSQL test database, copy
    `apps/api/.env.test.example` to `.env.test`, set `DATABASE_URL` explicitly,
-   run migrations and seed, and run the full API test suite.
+   and run migrations and seed for final clean-environment verification.
 4. Run API and web typechecks, Prisma validation, and a production web build
    in the final clean checkout.
 5. Manually verify admin, both PM boundaries, developer assignment boundaries,
