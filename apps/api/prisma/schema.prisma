@@ -105,6 +105,7 @@ model ActivityLog {
 
   @@index([taskId, createdAt])
   @@index([createdAt])
+  @@index([createdAt, id])
 }
 
 model Notification {

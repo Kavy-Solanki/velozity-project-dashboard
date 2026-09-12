@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: velozity-postgres
+    environment:
+      POSTGRES_DB: velozity_dashboard_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_local_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - velozity-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  velozity-postgres-data:

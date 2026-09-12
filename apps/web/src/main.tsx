@@ -1,9 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-
-function App() {
-  return <main>Velozity Client Project Dashboard</main>;
-}
+import "./index.css";
+import App from "./App";
 
 const root = document.getElementById("root");
 
