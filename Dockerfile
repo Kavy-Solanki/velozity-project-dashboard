@@ -14,4 +14,4 @@ COPY apps/api/tsconfig.json apps/api/tsconfig.json
 COPY apps/api/src apps/api/src
 RUN npm run build --workspace=@velozity/api
 
-CMD ["npm", "run", "start", "--workspace=@velozity/api"]
+CMD ["node", "apps/api/dist/src/server.js"]
