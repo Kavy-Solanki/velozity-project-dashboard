@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { Lock, Mail, ArrowRight } from "lucide-react";
 
 export const LoginView: React.FC = () => {
-  const { login } = useAuth();
+  const { login, isBackendWakingUp } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +44,15 @@ export const LoginView: React.FC = () => {
           <p>Technical Assessment &middot; Client Project Dashboard</p>
         </div>
 
-        {error && <div className="error-alert">{error}</div>}
+        {isBackendWakingUp ? (
+          <div className="error-alert">
+            <strong>Backend is waking up</strong>
+            <br />
+            The server is starting after a period of inactivity. This may take up to a minute. Please keep this tab open. We'll retry automatically.
+          </div>
+        ) : (
+          error && <div className="error-alert">{error}</div>
+        )}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
@@ -87,6 +95,7 @@ export const LoginView: React.FC = () => {
               type="button"
               className="demo-btn demo-admin"
               onClick={() => handleDemoLogin("admin@velozity.com")}
+              disabled={isSubmitting}
             >
               <strong>Admin</strong>
               <span>admin@velozity.com</span>
@@ -95,6 +104,7 @@ export const LoginView: React.FC = () => {
               type="button"
               className="demo-btn demo-pm"
               onClick={() => handleDemoLogin("pm1@velozity.com")}
+              disabled={isSubmitting}
             >
               <strong>PM (Alpha)</strong>
               <span>pm1@velozity.com</span>
@@ -103,6 +113,7 @@ export const LoginView: React.FC = () => {
               type="button"
               className="demo-btn demo-pm"
               onClick={() => handleDemoLogin("pm2@velozity.com")}
+              disabled={isSubmitting}
             >
               <strong>PM (Beta)</strong>
               <span>pm2@velozity.com</span>
@@ -111,6 +122,7 @@ export const LoginView: React.FC = () => {
               type="button"
               className="demo-btn demo-dev"
               onClick={() => handleDemoLogin("dev1@velozity.com")}
+              disabled={isSubmitting}
             >
               <strong>Developer 1</strong>
               <span>dev1@velozity.com</span>

@@ -27,6 +27,13 @@ interface RequestOptions extends RequestInit {
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
 
+export class ApiError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 function onRefreshed(token: string) {
   refreshSubscribers.forEach((cb) => cb(token));
   refreshSubscribers = [];
@@ -117,7 +124,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const errorMsg = data.error?.message || "An error occurred";
-    throw new Error(errorMsg);
+    throw new ApiError(errorMsg, response.status);
   }
 
   return data.data;

@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { User } from "../types";
-import { api, tokenStorage } from "../services/api";
+import { api, ApiError, tokenStorage } from "../services/api";
 
 interface AuthContextType {
   user: User | null;
   accessToken: string | null;
   isLoading: boolean;
+  isBackendWakingUp: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -16,6 +17,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isBackendWakingUp, setIsBackendWakingUp] = useState(false);
+  const loginPromise = useRef<Promise<void> | null>(null);
 
   const setAuthData = useCallback((token: string | null, userData: User | null) => {
     tokenStorage.set(token);
@@ -58,13 +61,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [setAuthData]);
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const data = await api.auth.login({ email, password });
-      setAuthData(data.accessToken, data.user);
-    } finally {
-      setIsLoading(false);
+    if (loginPromise.current) {
+      return loginPromise.current;
     }
+
+    setIsLoading(true);
+    const promise = (async () => {
+      const retryWindowMs = 75_000;
+      const retryIntervalMs = 5_000;
+      const retryDeadline = Date.now() + retryWindowMs;
+
+      try {
+        while (true) {
+          try {
+            const data = await api.auth.login({ email, password });
+            setAuthData(data.accessToken, data.user);
+            return;
+          } catch (err) {
+            const isWakingUpError =
+              err instanceof ApiError && (err.status === 502 || err.status === 503);
+
+            if (!isWakingUpError || Date.now() >= retryDeadline) {
+              if (isWakingUpError) {
+                throw new Error("The server is currently unavailable. Please try again in a moment.");
+              }
+              throw err;
+            }
+
+            setIsBackendWakingUp(true);
+            await new Promise((resolve) => setTimeout(resolve, retryIntervalMs));
+          }
+        }
+      } finally {
+        setIsBackendWakingUp(false);
+        setIsLoading(false);
+        loginPromise.current = null;
+      }
+    })();
+
+    loginPromise.current = promise;
+    return promise;
   };
 
   const logout = async () => {
@@ -78,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, accessToken, isLoading, isBackendWakingUp, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
