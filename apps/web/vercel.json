@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "https://velozity-project-dashboard-cemu.onrender.com/api/v1/:path*"
+    }
+  ]
+}
